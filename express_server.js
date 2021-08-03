@@ -7,7 +7,7 @@ app.set("view engine", "ejs"); //tells the Express app to use EJS as its templat
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-const generateRandomString = () => {
+const generateRandomString = () => { //Generates random string
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
   let result = '';
   for (var i = 6; i > 0; --i) {
@@ -52,10 +52,15 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls", (req, res) => {
-  console.log(req.body)
-  res.send("Ok");
+app.post("/urls", (req, res) => { //takes new url from user and make unique id for it to be saved in array
+  const urlId = generateRandomString();
+  const urlContent = req.body.longURL
+  
+  urlDatabase[urlId] = urlContent;
+  console.log(urlDatabase);
+  res.redirect(301, `/urls/${urlId}`)
 });
+
 
 
 app.listen(PORT, () => {
