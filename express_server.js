@@ -54,13 +54,15 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => { //takes new url from user and make unique id for it to be saved in array
   const urlId = generateRandomString();
-  const urlContent = req.body.longURL
   
   urlDatabase[urlId] = urlContent;
-  console.log(urlDatabase);
   res.redirect(301, `/urls/${urlId}`)
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL)
+});
 
 
 app.listen(PORT, () => {
