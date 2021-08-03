@@ -54,7 +54,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => { //takes new url from user and make unique id for it to be saved in array
   const urlId = generateRandomString();
-  
+  urlContent = req.body.longURL;
   urlDatabase[urlId] = urlContent;
   res.redirect(301, `/urls/${urlId}`)
 });
@@ -64,6 +64,11 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL)
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => { //deletes the given key from the urlDatabass using form
+  const shortURL = req.params.shortURL
+  delete urlDatabase[shortURL];
+  res.redirect("/urls")
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
