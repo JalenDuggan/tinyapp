@@ -3,30 +3,41 @@
 <head>
   <style>
     .button {
-      border: none;
-      color: white;
-      padding: 4px 10px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 4px 2px;
-      transition-duration: 0.4s;
-      cursor: pointer;
-    }
-    
-    .button1 {
-      background-color: white; 
-      color: red; 
-      border: 2px solid #ff0000;
-    }
-    
-    .button1:hover {
-      background-color: #ff0000;
-      color: white;
-    }
-    
-    </style>
+  border: none;
+  color: white;
+  padding: 4px 14px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.button1 {
+  background-color: white; 
+  color: #c42626; 
+  border: 2px solid #c42626;
+}
+
+.button1:hover {
+  background-color: #c42626;
+  color: white;
+}
+
+.button2 {
+  background-color: white; 
+  color: #2c7ae0; 
+  border: 2px solid #2c7ae0;
+}
+
+.button2:hover {
+  background-color: #2c7ae0;
+  color: white;
+}
+  </style>
+  
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -43,6 +54,7 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <th scope="col">Edit</th>
           <th scope="col">Delete</th>
         </tr>
       </thead>
@@ -54,6 +66,11 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
+            <td>
+              <form method="POST" action="/urls/<%= url %>">
+                <input class="button button2" type="submit" value = "Edit">
+              </form>
+            </td>
             <td>
               <form method="POST" action="/urls/<%= url %>/delete">
                 <input class="button button1" type="submit" value = "Delete">

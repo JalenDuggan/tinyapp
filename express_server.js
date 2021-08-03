@@ -54,7 +54,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => { //takes new url from user and make unique id for it to be saved in array
   const urlId = generateRandomString();
-  urlContent = req.body.longURL;
+  const urlContent = req.body.longURL;
   urlDatabase[urlId] = urlContent;
   res.redirect(301, `/urls/${urlId}`)
 });
@@ -65,9 +65,23 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => { //deletes the given key from the urlDatabass using form
-  const shortURL = req.params.shortURL
+  const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect("/urls")
+});
+
+app.post("/urls/:shortURL", (req, res) => { //Redirect the user when the edit button is click to the /urls/:shortURL
+  const editURL = req.params.shortURL;
+  res.redirect(`/urls/${editURL}`)
+});
+
+app.post("/urls/:shortURL/edit", (req, res) => { //takes new longURL from user and replaces it in the object
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_show", templateVars);
+  const urlId = req.params.shortURL;
+  const urlContent = req.body.longURL;
+  urlDatabase[urlId] = urlContent;
+  res.redirect(301, `/urls`)
 });
 
 app.listen(PORT, () => {
