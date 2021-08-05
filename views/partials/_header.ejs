@@ -56,8 +56,9 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="position:absolute; right: 40px">
-        <% if (Object.keys(username).length !== 0){ %>
+        <% if (Object.keys(usernames).length !== 0){ %>
           <form method="POST" action="/logout">
+            <label for="longURL">Logged In As: <%= usernames.username %></label>
             <input class="button button3" type="submit" value = "Logout">
           </form>
         <% } else { %>

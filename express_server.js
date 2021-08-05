@@ -43,7 +43,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: userDatabase };
+  const templateVars = { urls: urlDatabase, usernames: userDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -92,7 +92,7 @@ app.post("/urls/:shortURL/edit", (req, res) => { //takes new longURL from user a
 app.post("/login", (req, res) => { //Takes username from user and put it in database as a login
   const userName = req.body.username;
 
-  userDatabase[userName] = userName
+  userDatabase['username'] = userName
   
   
   res.cookie('username', userName)
@@ -100,9 +100,9 @@ app.post("/login", (req, res) => { //Takes username from user and put it in data
 });
 
 app.post("/logout", (req, res) => { //Logouts the user
-  const name = req.cookies.username
-  delete userDatabase[name];
+  delete userDatabase.username;
   res.clearCookie('username')
+  console.log(userDatabase);
   res.redirect("/urls")
 });
 
