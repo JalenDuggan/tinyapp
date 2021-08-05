@@ -1,4 +1,50 @@
 <header>
+  <style>
+    button {
+  border: none;
+  color: white;
+  padding: 4px 14px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.button3 {
+  background-color: #28A745; 
+  color: #000000; 
+  border: 2px solid #000000;
+}
+
+.button3:hover {
+  background-color: #0c0c0c;
+  color: rgb(219, 219, 219);
+}
+.button1 {
+  background-color: white; 
+  color: #c42626; 
+  border: 2px solid #c42626;
+}
+
+.button1:hover {
+  background-color: #c42626;
+  color: white;
+}
+
+.button2 {
+  background-color: white; 
+  color: #2c7ae0; 
+  border: 2px solid #2c7ae0;
+}
+
+.button2:hover {
+  background-color: #2c7ae0;
+  color: white;
+}
+  </style>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -8,6 +54,18 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+      </div>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="position:absolute; right: 40px">
+        <% if (Object.keys(username).length !== 0){ %>
+          <form method="POST" action="/logout">
+            <input class="button button3" type="submit" value = "Logout">
+          </form>
+        <% } else { %>
+          <form method="POST" action="/login">
+            <input type="text" name="username" placeholder="Username">
+            <input type="submit" class="button button3" value="Login">
+          </form>
+        <% } %>
       </div>
     </div>
   </nav>
