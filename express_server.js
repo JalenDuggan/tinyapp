@@ -84,6 +84,7 @@ app.post("/urls/:shortURL/delete", (req, res) => { //deletes the given key from 
 
 app.post("/urls/:shortURL", (req, res) => { //Redirect the user when the edit button is click to the /urls/:shortURL
   const editURL = req.params.shortURL;
+  
   res.redirect(`/urls/${editURL}`)
 });
 
@@ -93,17 +94,12 @@ app.post("/urls/:shortURL/edit", (req, res) => { //takes new longURL from user a
   const urlId = req.params.shortURL;
   const urlContent = req.body.longURL;
   urlDatabase[urlId] = urlContent;
+  
   res.redirect(301, `/urls`)
 });
 
 app.post("/login", (req, res) => { //Takes username from user and put it in database as a login
-  const userName = req.body.email;
-
-  users['username'] = userName
-  
-  
-  res.cookie('username', userName)
-  res.redirect(`/urls`)
+  res.redirect(`/login`)
 });
 
 app.post("/logout", (req, res) => { //Logouts the user
@@ -144,6 +140,17 @@ app.post("/register", (req, res) => {
   res.cookie('user_id', userId)
   return res.redirect("/urls")
 }); 
+
+app.get("/login", (req, res) => {
+  const cookieId = req.cookies.user_id;
+  const templateVars = { urls: urlDatabase, usernames: users, cookieId: cookieId };
+  res.render("urls_login", templateVars)
+});
+
+app.post("/registar/point", (req, res) => {
+  res.redirect("/registar")
+});
+
 
 
 app.listen(PORT, () => {

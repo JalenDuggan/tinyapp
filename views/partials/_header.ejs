@@ -62,10 +62,16 @@
             <input class="button button3" type="submit" value = "Logout">
           </form>
         <% } else { %>
-          <form method="POST" action="/login">
-            <input type="email" name="email" placeholder="Enter your email">
-            <input type="submit" class="button button3" value="Login">
-          </form>
+          <div>
+            <form method="POST" action="/login">
+              <input type="submit" class="button button3" value="Login">
+            </form>
+          </div>
+          <div>
+            <form method="POST" action="/registar/point">
+              <input type="submit" class="button button3" value="Registar">
+            </form>
+          </div>
         <% } %>
       </div>
     </div>
