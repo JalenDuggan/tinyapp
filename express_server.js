@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
+const { authenticateUser, createNewUser, findUser } = require("./helpers/authenticationHelpers")
+const { generateRandomString } = require("./helpers/keyGen")
 
 app.set("view engine", "ejs"); //tells the Express app to use EJS as its templating engine
 
@@ -11,19 +13,6 @@ const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 
-const generateRandomString = () => { //Generates random string
-  const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  let result = '';
-  for (var i = 6; i > 0; --i) {
-    result += chars[Math.floor(Math.random() * chars.length)];
-  }
-  if (urlDatabase[result]) {
-    return generateRandomString()
-  } else {
-    return result;
-  }
-  
-}
 //------------------------------------------------------------------------------------------
 //-----------------------------------"DATABASE"---------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -33,10 +22,24 @@ const urlDatabase = {
 };
 
 const users = {
-  
+  he53h6: {
+    email: "gentleman@cambrioleur.com",
+    password: "paris",
+  },
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
+
+const findUserByEmail = (email) => {
+  for (const userId in users) {
+    const user = users[userId];
+    // if the email we pass matches a user's email
+    if (user.email === email) {
+      return user;
+    }
+  }
+}
+
 
 app.get("/urls.json", (req, res) => {
   res.send(urlDatabase);
@@ -118,14 +121,33 @@ app.get("/registar", (req, res) => {
 // - /register (POST) - Create user with form information
 app.post("/register", (req, res) => {
   const userId = generateRandomString()
+  const userObject = {
+    email: req.body.email,
+    password: req.body.password
+  }
+  
+  if (!userObject.email || !userObject.password) {
+    return res.status(400).send('Email and password cannot be blank');
+  }
+  
+  const user = findUserByEmail(userObject.email);
+  
+  if (user) {
+    return res.status(400).send('The email address is alread in use')
+  }
+  
   users[userId] = {
     email: req.body.email,
     password: req.body.password
   }
+
   res.cookie('user_id', userId)
-  res.redirect('/urls')
+  return res.redirect("/urls")
 }); 
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+module.exports = { urlDatabase };
