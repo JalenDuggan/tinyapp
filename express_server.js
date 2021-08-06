@@ -32,7 +32,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const userDatabase = {
+const users = {
   
 }
 //------------------------------------------------------------------------------------------
@@ -43,18 +43,21 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, usernames: userDatabase };
+  const cookieId = req.cookies.user_id;
+  const templateVars = { urls: urlDatabase, usernames: users, cookieId: cookieId };
   res.render("urls_index", templateVars);
 });
 
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { urls: urlDatabase, usernames: userDatabase };
+  const cookieId = req.cookies.user_id;
+  const templateVars = { urls: urlDatabase, usernames: users, cookieId: cookieId };
   res.render("urls_new", templateVars)
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], usernames: userDatabase };
+  const cookieId = req.cookies.user_id;
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], usernames: users, cookieId: cookieId };
   res.render("urls_show", templateVars);
 });
 
@@ -91,9 +94,9 @@ app.post("/urls/:shortURL/edit", (req, res) => { //takes new longURL from user a
 });
 
 app.post("/login", (req, res) => { //Takes username from user and put it in database as a login
-  const userName = req.body.username;
+  const userName = req.body.email;
 
-  userDatabase['username'] = userName
+  users['username'] = userName
   
   
   res.cookie('username', userName)
@@ -101,16 +104,27 @@ app.post("/login", (req, res) => { //Takes username from user and put it in data
 });
 
 app.post("/logout", (req, res) => { //Logouts the user
-  delete userDatabase.username;
-  res.clearCookie('username')
-  console.log(userDatabase);
+  res.clearCookie('user_id')
   res.redirect("/urls")
 });
 
 app.get("/registar", (req, res) => {
-  const templateVars = { urls: urlDatabase, usernames: userDatabase };
+  const cookieId = req.cookies.user_id;
+  const templateVars = { urls: urlDatabase, usernames: users, cookieId: cookieId };
   res.render("registar", templateVars)
 });
+
+
+// - /register (POST) - Create user with form information
+app.post("/register", (req, res) => {
+  const userId = generateRandomString()
+  users[userId] = {
+    email: req.body.email,
+    password: req.body.password
+  }
+  res.cookie('user_id', userId)
+  res.redirect('/urls')
+}); 
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

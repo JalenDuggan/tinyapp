@@ -56,14 +56,14 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="position:absolute; right: 40px">
-        <% if (Object.keys(usernames).length !== 0){ %>
+        <% if (usernames[cookieId]){ %>
           <form method="POST" action="/logout">
-            <label for="longURL">Logged In As: <%= usernames.username %></label>
+            <label for="longURL">Logged In As: <%= usernames[cookieId].email %></label>
             <input class="button button3" type="submit" value = "Logout">
           </form>
         <% } else { %>
           <form method="POST" action="/login">
-            <input type="text" name="username" placeholder="Username">
+            <input type="email" name="email" placeholder="Enter your email">
             <input type="submit" class="button button3" value="Login">
           </form>
         <% } %>
