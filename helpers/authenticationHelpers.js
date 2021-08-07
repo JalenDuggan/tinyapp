@@ -41,5 +41,32 @@ const eqArrays = function (arry1, arry2) {
   return true;
 }
 
+function getKeyByValue(object, value) {
+  for (const key in object) {
+    if (eqObjects(object[key],value)) {
+      return key
+    }
+  }
+}
+const findUserByEmail = (email, database) => {
+  for (const userId in database) {
+    const user = database[userId];
+    // if the email we pass matches a user's email
+    if (user.email === email) {
+      return user;
+    }
+  }
+}
+const searchAllShortUrl = (shortURL) => {
+  for (const cookie in urlDatabase) {
+    for (const key in urlDatabase[cookie]) {
+      if (key === shortURL) {
+        return urlDatabase[cookie][key];
+      }
+    }
+  }
+}
 
-module.exports = { createNewUser, eqObjects }
+
+
+module.exports = { createNewUser, eqObjects, getKeyByValue, findUserByEmail, searchAllShortUrl }
