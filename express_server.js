@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; //default port 8080
 const { eqObjects, createNewUser, findUser } = require("./helpers/authenticationHelpers")
 const { generateRandomString } = require("./helpers/keyGen")
+const bcrypt = require('bcrypt');
 
 app.set("view engine", "ejs"); //tells the Express app to use EJS as its templating engine
 
@@ -81,7 +82,6 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const cookieId = req.cookies.user_id;
-
   if (cookieId) {
     const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
     res.render("urls_index", templateVars);
@@ -106,7 +106,6 @@ app.get("/urls/:shortURL", (req, res) => {
   } else {
     const shortURL = req.params.shortURL;
     const longURL = searchAllShortUrl(shortURL)
-    console.log(longURL);
     const templateVars = { shortURL: shortURL, longURL: longURL, usernames: users, cookieId: cookieId };
     res.render("urls_show", templateVars)
   }
@@ -174,7 +173,7 @@ app.post("/login", (req, res) => { //Logins user
   }
 
   // found the user, now does their password match?
-  if (users[userId].password !== password) {
+  if (bcrypt.compareSync(password, users[userId].password)) {
     return res.status(400).send('password does not match')
   }
 
@@ -197,16 +196,18 @@ app.get("/registar", (req, res) => {
 
 // - /register (POST) - Create user with form information
 app.post("/register", (req, res) => {
+  
   const userId = generateRandomString()
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const userObject = {
     email: req.body.email,
-    password: req.body.password
+    password: hashedPassword
   }
   
   if (!userObject.email || !userObject.password) {
     return res.status(400).send('Email and password cannot be blank');
   }
-  
   const user = findUserByEmail(userObject.email);
   
   if (user) {
@@ -215,7 +216,7 @@ app.post("/register", (req, res) => {
   
   users[userId] = {
     email: req.body.email,
-    password: req.body.password
+    password: hashedPassword
   }
 
   res.cookie('user_id', userId)

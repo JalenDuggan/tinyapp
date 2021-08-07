@@ -23,7 +23,7 @@
         </tr>
       </thead>
       <tbody>
-        <% if (Object.keys(urls).length === 0) { %>
+        <% if (!cookieId) { %>
           <td>No Current URLs! Must sign to view urls</td>
         <% } %>  
         <% for(let url in urls) { %>
