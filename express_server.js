@@ -91,7 +91,6 @@ app.post("/urls", (req, res) => { //takes new url from user and make unique id f
   const cookieId = req.session.user_id
   const urlId = generateRandomString();
   const urlContent = req.body.longURL;
-  console.log(urlContent);
   urlDatabase[cookieId] = {
     [urlId]: urlContent
   }
