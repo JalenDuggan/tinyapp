@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
-const { authenticateUser, createNewUser, findUser } = require("./helpers/authenticationHelpers")
+const { eqObjects, createNewUser, findUser } = require("./helpers/authenticationHelpers")
 const { generateRandomString } = require("./helpers/keyGen")
 
 app.set("view engine", "ejs"); //tells the Express app to use EJS as its templating engine
@@ -30,6 +30,14 @@ const users = {
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
+
+function getKeyByValue(object, value) {
+  for (const key in object) {
+    if (eqObjects(object[key],value)) {
+      return key
+    }
+  }
+}
 const findUserByEmail = (email) => {
   for (const userId in users) {
     const user = users[userId];
@@ -38,8 +46,10 @@ const findUserByEmail = (email) => {
       return user;
     }
   }
-}
-
+}  
+//-------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 
 app.get("/urls.json", (req, res) => {
   res.send(urlDatabase);
@@ -89,17 +99,49 @@ app.post("/urls/:shortURL", (req, res) => { //Redirect the user when the edit bu
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => { //takes new longURL from user and replaces it in the object
-  const templateVars = { urls: urlDatabase };
+  const cookieId = req.cookies.user_id;
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], usernames: users, cookieId: cookieId };
   res.render("urls_show", templateVars);
   const urlId = req.params.shortURL;
   const urlContent = req.body.longURL;
   urlDatabase[urlId] = urlContent;
   
-  res.redirect(301, `/urls`)
+  res.redirect(`/urls`)
 });
 
-app.post("/login", (req, res) => { //Takes username from user and put it in database as a login
+app.post("/login/point", (req, res) => { //direct user to login page
   res.redirect(`/login`)
+});
+
+app.post("/login", (req, res) => { //Logins user
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const confi = {
+    email: email,
+    password: password
+  }
+
+  if(!email || !password){
+    return res.status(400).send('email and password cannot be blank');
+  }
+  
+  const userId = getKeyByValue(users, confi)
+  console.log(userId);
+
+  // we didn't find user
+  if (!userId) {
+    return res.status(400).send('no user with that email found')
+  }
+
+  // found the user, now does their password match?
+  if (users[userId].password !== password) {
+    return res.status(400).send('password does not match')
+  }
+
+  // happy path
+  res.cookie('user_id', userId);
+  return res.redirect("/urls")
 });
 
 app.post("/logout", (req, res) => { //Logouts the user
