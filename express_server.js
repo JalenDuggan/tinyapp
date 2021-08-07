@@ -17,8 +17,17 @@ app.use(cookieParser())
 //-----------------------------------"DATABASE"---------------------------------------------
 //------------------------------------------------------------------------------------------
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  guest: {
+    
+  },
+  he53h6: {
+    "b2xb3r": "http://www.lighthouselabs.ca",
+    "hk416s": "https://www.ableton.com/en/"
+  },
+  je45g6: {
+    "5t35jf": "https://www.youtube.com/watch?v=yKV58VVGV9k",
+    "guij44": "https://www.youtube.com/watch?v=iiN3eeRelYc"
+  }
 };
 
 const users = {
@@ -26,6 +35,10 @@ const users = {
     email: "gentleman@cambrioleur.com",
     password: "paris",
   },
+  je45g6: {
+    email: "yep@gmail.com",
+    password: "1234",
+  }
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -46,7 +59,18 @@ const findUserByEmail = (email) => {
       return user;
     }
   }
-}  
+}
+
+const searchAllShortUrl = (shortURL) => {
+  for (const cookie in urlDatabase) {
+    for (const key in urlDatabase[cookie]) {
+      if (key === shortURL) {
+        return urlDatabase[cookie][key];
+      }
+    }
+  }
+}
+
 //-------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
@@ -57,21 +81,35 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const cookieId = req.cookies.user_id;
-  const templateVars = { urls: urlDatabase, usernames: users, cookieId: cookieId };
-  res.render("urls_index", templateVars);
+
+  if (cookieId) {
+    const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
+    res.render("urls_index", templateVars);
+  } else {
+    const templateVars = { urls: urlDatabase.guest, usernames: users, cookieId: cookieId };
+    res.render("urls_index", templateVars);
+  }
 });
 
 
 app.get("/urls/new", (req, res) => {
   const cookieId = req.cookies.user_id;
-  const templateVars = { urls: urlDatabase, usernames: users, cookieId: cookieId };
+  const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
   res.render("urls_new", templateVars)
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const cookieId = req.cookies.user_id;
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], usernames: users, cookieId: cookieId };
-  res.render("urls_show", templateVars);
+  if (cookieId) {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[cookieId][req.params.shortURL], usernames: users, cookieId: cookieId };
+    res.render("urls_show", templateVars);
+  } else {
+    const shortURL = req.params.shortURL;
+    const longURL = searchAllShortUrl(shortURL)
+    console.log(longURL);
+    const templateVars = { shortURL: shortURL, longURL: longURL, usernames: users, cookieId: cookieId };
+    res.render("urls_show", templateVars)
+  }
 });
 
 app.post("/urls", (req, res) => { //takes new url from user and make unique id for it to be saved in array
@@ -87,8 +125,9 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => { //deletes the given key from the urlDatabass using form
+  const cookieId = req.cookies.user_id;
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
+  delete urlDatabase[cookieId][shortURL];
   res.redirect("/urls")
 });
 
@@ -100,12 +139,12 @@ app.post("/urls/:shortURL", (req, res) => { //Redirect the user when the edit bu
 
 app.post("/urls/:shortURL/edit", (req, res) => { //takes new longURL from user and replaces it in the object
   const cookieId = req.cookies.user_id;
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], usernames: users, cookieId: cookieId };
-  res.render("urls_show", templateVars);
   const urlId = req.params.shortURL;
   const urlContent = req.body.longURL;
   urlDatabase[urlId] = urlContent;
   
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[cookieId][req.params.shortURL], usernames: users, cookieId: cookieId };
+  res.render("urls_show", templateVars);
   res.redirect(`/urls`)
 });
 
@@ -127,7 +166,7 @@ app.post("/login", (req, res) => { //Logins user
   }
   
   const userId = getKeyByValue(users, confi)
-  console.log(userId);
+
 
   // we didn't find user
   if (!userId) {
@@ -151,7 +190,7 @@ app.post("/logout", (req, res) => { //Logouts the user
 
 app.get("/registar", (req, res) => {
   const cookieId = req.cookies.user_id;
-  const templateVars = { urls: urlDatabase, usernames: users, cookieId: cookieId };
+  const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
   res.render("registar", templateVars)
 });
 
@@ -185,7 +224,8 @@ app.post("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   const cookieId = req.cookies.user_id;
-  const templateVars = { urls: urlDatabase, usernames: users, cookieId: cookieId };
+  console.log(urlDatabase[cookieId]);
+  const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
   res.render("urls_login", templateVars)
 });
 

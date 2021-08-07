@@ -24,14 +24,14 @@
       </thead>
       <tbody>
         <% if (Object.keys(urls).length === 0) { %>
-          <td>No Current URLs</td>
+          <td>No Current URLs! Must sign to view urls</td>
         <% } %>  
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
             <td>
-              <form method="POST" action="/urls/<%= url %>">
+              <form method="POST" action="/urls/<%= url %>/edit">
                 <input class="button button2" type="submit" value = "Edit">
               </form>
             </td>

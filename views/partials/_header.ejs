@@ -50,11 +50,20 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-      </div>
+    <% if (usernames[cookieId]) { %>
+
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/urls">My URLs</a>
+          <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        </div>
+    <% } else { %>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/registar">My URLs</a>
+          <a class="nav-item nav-link" href="/registar">Create New URL</a>
+        </div>
+    <% } %>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="position:absolute; right: 40px">
         <% if (usernames[cookieId]){ %>
           <form method="POST" action="/logout">
