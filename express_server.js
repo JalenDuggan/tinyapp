@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
-const { getKeyByValue, findUserByEmail, searchAllShortUrl  } = require("./helpers/authenticationHelpers")
+const { getKeyByValue, findUserByEmail, searchAllShortUrl, searchForUserId  } = require("./helpers/authenticationHelpers")
 const { generateRandomString } = require("./helpers/keyGen")
 const bcrypt = require('bcrypt');
 
@@ -51,6 +51,7 @@ const users = {
 //-------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
+
 
 app.get("/urls.json", (req, res) => {
   res.send(urlDatabase);
@@ -134,16 +135,13 @@ app.post("/login", (req, res) => { //Logins user
   const email = req.body.email;
   const password = req.body.password;
 
-  const confi = {
-    email: email,
-    password: password
-  }
 
   if(!email || !password){
     return res.status(400).send('email and password cannot be blank');
   }
   
-  const userId = getKeyByValue(users, confi)
+  const userId = searchForUserId(email, users)
+
 
 
   // we didn't find user
@@ -152,7 +150,7 @@ app.post("/login", (req, res) => { //Logins user
   }
 
   // found the user, now does their password match?
-  if (bcrypt.compareSync(password, users[userId].password)) {
+  if (!bcrypt.compareSync(password, users[userId].password)) {
     return res.status(400).send('password does not match')
   }
 
@@ -178,16 +176,18 @@ app.get("/registar", (req, res) => {
 app.post("/register", (req, res) => {
   
   const userId = generateRandomString()
+  const email = req.body.email
   const password = req.body.password;
+
+  if (!email || !password) {
+    return res.status(400).send('Email and password cannot be blank');
+  }
   const hashedPassword = bcrypt.hashSync(password, 10);
   const userObject = {
     email: req.body.email,
     password: hashedPassword
   }
   
-  if (!userObject.email || !userObject.password) {
-    return res.status(400).send('Email and password cannot be blank');
-  }
   const user = findUserByEmail(userObject.email, users);
   
   if (user) {
@@ -219,4 +219,3 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-module.exports = { urlDatabase };

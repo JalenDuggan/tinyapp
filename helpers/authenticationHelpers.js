@@ -66,7 +66,17 @@ const searchAllShortUrl = (shortURL) => {
     }
   }
 }
+const searchForUserId = (email, database) => {
+  for (const userId in database) {
+    for (const key in database[userId]) {
+      if (database[userId].email === email) {
+        return userId
+      }
+    }
+  }
+}
 
 
 
-module.exports = { createNewUser, eqObjects, getKeyByValue, findUserByEmail, searchAllShortUrl }
+
+module.exports = { createNewUser, eqObjects, getKeyByValue, findUserByEmail, searchAllShortUrl, searchForUserId }
