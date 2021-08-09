@@ -1,8 +1,7 @@
 const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
-const { getKeyByValue, findUserByEmail, searchAllShortUrl, searchForUserId  } = require("./helpers/authenticationHelpers")
-const { generateRandomString } = require("./helpers/keyGen")
+const { findUserByEmail, searchAllShortUrl, searchForUserId, searchForLongURL, generateRandomString  } = require("./helpers/authenticationHelpers")
 const bcrypt = require('bcrypt');
 
 app.set("view engine", "ejs"); //tells the Express app to use EJS as its templating engine
@@ -46,25 +45,31 @@ const users = {
     password: "1234",
   }
 }
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------------------
 
 app.get("/urls.json", (req, res) => {
-  res.send(urlDatabase);
+  return res.send(urlDatabase);
+});
+
+app.get("/", (req, res) => {
+  const cookieId = req.session.user_id
+  if (cookieId) {
+    return res.redirect("/urls")
+  } else {
+    const templateVars = { urls: urlDatabase.guest, usernames: users, cookieId: cookieId };
+    return res.redirect("/login")
+  }
 });
 
 app.get("/urls", (req, res) => {
   const cookieId = req.session.user_id
   if (cookieId) {
     const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
-    res.render("urls_index", templateVars);
+    return res.render("urls_index", templateVars);
   } else {
     const templateVars = { urls: urlDatabase.guest, usernames: users, cookieId: cookieId };
-    res.render("urls_index", templateVars);
+    return res.render("urls_index", templateVars);
   }
 });
 
@@ -72,63 +77,68 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const cookieId = req.session.user_id
   const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
-  res.render("urls_new", templateVars)
+  return res.render("urls_new", templateVars)
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const cookieId = req.session.user_id
   if (cookieId) {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[cookieId][req.params.shortURL], usernames: users, cookieId: cookieId };
-    res.render("urls_show", templateVars);
+    return res.render("urls_show", templateVars);
   } else {
     const shortURL = req.params.shortURL;
-    const longURL = searchAllShortUrl(shortURL)
-    const templateVars = { shortURL: shortURL, longURL: longURL, usernames: users, cookieId: cookieId };
-    res.render("urls_show", templateVars)
+    const longURL = searchAllShortUrl(shortURL, users)
+    const templateVars = { shortURL: shortURL, longURL: longURL, usernames: users, cookieId: cookieId, urlDatabase: urlDatabase };
+    return res.render("urls_show", templateVars)
   }
 });
 
 app.post("/urls", (req, res) => { //takes new url from user and make unique id for it to be saved in array
   const cookieId = req.session.user_id
-  const urlId = generateRandomString();
+  const urlId = generateRandomString(users);
   const urlContent = req.body.longURL;
   urlDatabase[cookieId] = {
     [urlId]: urlContent
   }
-  res.redirect(301, `/urls/${urlId}`)
+  return res.redirect(`/urls/${urlId}`)
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL)
+  const shortUrl = req.params.shortURL;
+  const longURL = searchForLongURL(shortUrl, urlDatabase) 
+  
+  return res.redirect(longURL)
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => { //deletes the given key from the urlDatabass using form
   const cookieId = req.session.user_id
   const shortURL = req.params.shortURL;
   delete urlDatabase[cookieId][shortURL];
-  res.redirect("/urls")
+  return res.redirect("/urls")
 });
 
 app.post("/urls/:shortURL", (req, res) => { //Redirect the user when the edit button is click to the /urls/:shortURL
   const editURL = req.params.shortURL;
   
-  res.redirect(`/urls/${editURL}`)
+  return res.redirect(`/urls/${editURL}`)
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => { //takes new longURL from user and replaces it in the object
   const cookieId = req.session.user_id
+  if (!cookieId) {
+    return res.status(400).send('You dont own this short URL. Sorry'); 
+  }
   const urlId = req.params.shortURL;
   const urlContent = req.body.longURL;
   urlDatabase[cookieId][urlId] = urlContent;
   
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[cookieId][req.params.shortURL], usernames: users, cookieId: cookieId };
   res.render("urls_show", templateVars);
-  res.redirect(`/urls`)
+  return res.redirect(`/urls`)
 });
 
 app.post("/login/point", (req, res) => { //direct user to login page
-  res.redirect(`/login`)
+  return res.redirect(`/login`)
 });
 
 app.post("/login", (req, res) => { //Logins user
@@ -162,20 +172,20 @@ app.post("/login", (req, res) => { //Logins user
 app.post("/logout", (req, res) => { //Logouts the user
   res.clearCookie('session')
   res.clearCookie('session.sig')
-  res.redirect("/urls")
+  return res.redirect("/urls")
 });
 
 app.get("/registar", (req, res) => {
   const cookieId = req.session.user_id
   const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
-  res.render("registar", templateVars)
+  return res.render("registar", templateVars)
 });
 
 
 // - /register (POST) - Create user with form information
 app.post("/register", (req, res) => {
   
-  const userId = generateRandomString()
+  const userId = generateRandomString(users)
   const email = req.body.email
   const password = req.body.password;
 
@@ -206,11 +216,11 @@ app.post("/register", (req, res) => {
 app.get("/login", (req, res) => {
   const cookieId = req.session.user_id
   const templateVars = { urls: urlDatabase[cookieId], usernames: users, cookieId: cookieId };
-  res.render("urls_login", templateVars)
+  return res.render("urls_login", templateVars)
 });
 
 app.post("/registar/point", (req, res) => {
-  res.redirect("/registar")
+  return res.redirect("/registar")
 });
 
 

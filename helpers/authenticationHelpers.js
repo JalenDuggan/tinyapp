@@ -41,13 +41,6 @@ const eqArrays = function (arry1, arry2) {
   return true;
 }
 
-function getKeyByValue(object, value) {
-  for (const key in object) {
-    if (eqObjects(object[key],value)) {
-      return key
-    }
-  }
-}
 const findUserByEmail = (email, database) => {
   for (const userId in database) {
     const user = database[userId];
@@ -57,7 +50,7 @@ const findUserByEmail = (email, database) => {
     }
   }
 }
-const searchAllShortUrl = (shortURL) => {
+const searchAllShortUrl = (shortURL, urlDatabase) => {
   for (const cookie in urlDatabase) {
     for (const key in urlDatabase[cookie]) {
       if (key === shortURL) {
@@ -76,7 +69,30 @@ const searchForUserId = (email, database) => {
   }
 }
 
+const searchForLongURL = (shortURL, database) => {
+  for (const userId in database) {
+    for (const smallURLs in database[userId]) {
+      if (smallURLs === shortURL) {
+        return database[userId][smallURLs]
+      }
+    }
+  }
+}
+
+const generateRandomString = (urlDatabase) => { //Generates random string
+  const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  let result = '';
+  for (var i = 6; i > 0; --i) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  if (urlDatabase[result]) {
+    return generateRandomString()
+  } else {
+    return result;
+  }
+  
+}
 
 
 
-module.exports = { createNewUser, eqObjects, getKeyByValue, findUserByEmail, searchAllShortUrl, searchForUserId }
+module.exports = { createNewUser, eqObjects, findUserByEmail, searchAllShortUrl, searchForUserId, searchForLongURL, generateRandomString }
