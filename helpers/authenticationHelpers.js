@@ -1,13 +1,4 @@
 
-
-const createNewUser = (userDatabase, userObject) => {
-  if (!userDatabase[userObject.email]) {
-    userDatabase[email] = userObject
-    return userObject
-  }
-  return null
-}
-
 const eqObjects = function(object1, object2) {
   let i = 0;
   let y = 0;
@@ -82,7 +73,7 @@ const searchForLongURL = (shortURL, database) => {
 const generateRandomString = (urlDatabase) => { //Generates random string
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
   let result = '';
-  for (var i = 6; i > 0; --i) {
+  for (let i = 6; i > 0; --i) {
     result += chars[Math.floor(Math.random() * chars.length)];
   }
   if (urlDatabase[result]) {
@@ -95,4 +86,4 @@ const generateRandomString = (urlDatabase) => { //Generates random string
 
 
 
-module.exports = { createNewUser, eqObjects, findUserByEmail, searchAllShortUrl, searchForUserId, searchForLongURL, generateRandomString }
+module.exports = { findUserByEmail, searchAllShortUrl, searchForUserId, searchForLongURL, generateRandomString }
