@@ -96,9 +96,13 @@ app.post("/urls", (req, res) => { //takes new url from user and make unique id f
   const cookieId = req.session.user_id;
   const urlId = generateRandomString(users);
   const urlContent = req.body.longURL;
-  urlDatabase[cookieId] = {
-    [urlId]: urlContent
-  };
+  if (urlDatabase[cookieId]) {
+    urlDatabase[cookieId][urlId] = urlContent;
+  } else {
+    urlDatabase[cookieId] = {
+      [urlId]: urlContent
+    };
+  }
   return res.redirect(`/urls/${urlId}`);
 });
 
@@ -130,9 +134,6 @@ app.post("/urls/:shortURL/edit", (req, res) => { //takes new longURL from user a
   const urlId = req.params.shortURL;
   const urlContent = req.body.longURL;
   urlDatabase[cookieId][urlId] = urlContent;
-  
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[cookieId][req.params.shortURL], usernames: users, cookieId: cookieId };
-  res.render("urls_show", templateVars);
   return res.redirect(`/urls`);
 });
 
